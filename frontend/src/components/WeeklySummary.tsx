@@ -12,7 +12,7 @@ import {
   Eye
 } from 'lucide-react';
 import { useWeeklySummary } from '../hooks/useWeeklySummary';
-import { useWebsiteAnalytics } from '../hooks/useWebsiteAnalytics'; // PostHog integration
+import { useWebsiteAnalytics } from '../hooks/useWebsiteAnalytics'; // PostHog integration fix
 
 export function WeeklySummary() {
   const { data, error, isLoading, mutate } = useWeeklySummary();
