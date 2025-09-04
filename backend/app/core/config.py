@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     DESCRIPTION: str = "YouTube Analytics Tracking System API"
     BASE_URL: str = "http://localhost:8000"
     
-    # Database
-    DATABASE_URL: str = "sqlite:///./youtube_analytics.db"
+    # Database (Railway provides DATABASE_URL, fallback to SQLite for local dev)
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./youtube_analytics.db")
 
     # Supabase Configuration
     SUPABASE_URL: Optional[str] = None
@@ -43,11 +43,7 @@ class Settings(BaseSettings):
     SCRAPECREATORS_API_KEY: str = "wHAmZcysPNY6yDhX0impv2Lv5dg1"
     SCRAPECREATORS_BASE_URL: str = "https://api.scrapecreators.com"
 
-    # Google Analytics 4 Configuration (keeping for migration period)
-    GA4_PROPERTY_ID: Optional[str] = None
-    GA4_MEASUREMENT_ID: Optional[str] = None
-    GA4_API_SECRET: Optional[str] = None
-    GA4_SERVICE_ACCOUNT_PATH: Optional[str] = None
+    # GA4 Configuration removed - using PostHog for analytics
 
     # PostHog Analytics Configuration
     POSTHOG_API_KEY: Optional[str] = None
@@ -151,15 +147,7 @@ def get_scrapecreators_config() -> dict:
     }
 
 
-# Google Analytics 4 configuration
-def get_ga4_config() -> dict:
-    """Get Google Analytics 4 configuration."""
-    return {
-        "property_id": settings.GA4_PROPERTY_ID,
-        "measurement_id": settings.GA4_MEASUREMENT_ID,
-        "api_secret": settings.GA4_API_SECRET,
-        "service_account_path": settings.GA4_SERVICE_ACCOUNT_PATH
-    }
+# GA4 configuration removed - using PostHog for analytics
 
 
 # PostHog Analytics configuration

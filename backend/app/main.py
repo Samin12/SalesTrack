@@ -81,47 +81,15 @@ async def root():
     }
 
 
+@app.get("/")
+async def root():
+    """Root endpoint."""
+    return {"message": "YouTube Analytics API", "status": "running"}
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint for deployment verification."""
-    import os
-    import sqlite3
-
-    try:
-        # Check database connection
-        db_path = "youtube_analytics.db"
-        db_exists = os.path.exists(db_path)
-
-        if db_exists:
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM utm_links")
-            utm_count = cursor.fetchone()[0]
-            conn.close()
-        else:
-            utm_count = 0
-
-        return {
-            "status": "healthy",
-            "environment": settings.ENVIRONMENT,
-            "version": settings.VERSION,
-            "database": {
-                "exists": db_exists,
-                "utm_links_count": utm_count
-            },
-            "features": {
-                "utm_tracking": True,
-                "pretty_urls": True,
-                "click_analytics": True
-            }
-        }
-    except Exception as e:
-        return {
-            "status": "unhealthy",
-            "error": str(e),
-            "environment": settings.ENVIRONMENT,
-            "version": settings.VERSION
-        }
+    return {"status": "healthy", "message": "API is running"}
 
 
 # Include API routers
@@ -164,10 +132,12 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+    port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=port,
         reload=settings.DEBUG,
         log_level=settings.LOG_LEVEL.lower()
     )

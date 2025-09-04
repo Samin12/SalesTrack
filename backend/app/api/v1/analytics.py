@@ -1330,6 +1330,36 @@ async def get_dashboard_data():
                 this_week_views += video['view_count']
                 this_week_videos += 1
 
+        # Get website analytics data from PostHog
+        website_visits_this_week = 0
+        unique_visitors_this_week = 0
+        top_website_page_this_week = "N/A"
+
+        try:
+            from app.services.posthog_service import posthog_service
+
+            if posthog_service:
+                # Get website visits this week
+                website_data = await posthog_service.get_website_analytics(days=7)
+                if website_data:
+                    website_visits_this_week = website_data.get("total_visits", 0)
+                    unique_visitors_this_week = website_data.get("unique_visitors", 0)
+
+                    # Get top page from PostHog data
+                    top_pages = website_data.get("top_pages", [])
+                    if top_pages:
+                        top_page = top_pages[0].get("page", "N/A")
+                        # Clean up the page URL for display
+                        if top_page.startswith("www."):
+                            top_website_page_this_week = top_page
+                        elif top_page != "N/A":
+                            top_website_page_this_week = f"Page: {top_page}"
+                        else:
+                            top_website_page_this_week = "N/A"
+
+        except Exception as e:
+            logger.warning(f"Error getting website data for dashboard: {str(e)}")
+
         # Format for frontend
         formatted_data = {
             "youtube_views_this_week": this_week_views,
@@ -1342,7 +1372,11 @@ async def get_dashboard_data():
             "recent_videos": recent_videos[:3],  # Top 3 recent videos
             "average_views_per_video": growth_data['recent_average_views'],
             "growth_estimate": growth_data,
-            "last_updated": datetime.utcnow().isoformat()
+            "last_updated": datetime.utcnow().isoformat(),
+            # Website analytics data
+            "website_visits_this_week": website_visits_this_week,
+            "unique_visitors_this_week": unique_visitors_this_week,
+            "top_website_page_this_week": top_website_page_this_week
         }
 
         return {
