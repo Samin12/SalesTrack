@@ -12,9 +12,11 @@ import {
   Eye
 } from 'lucide-react';
 import { useWeeklySummary } from '../hooks/useWeeklySummary';
+import { useWebsiteAnalytics } from '../hooks/useWebsiteAnalytics'; // PostHog integration
 
 export function WeeklySummary() {
   const { data, error, isLoading, mutate } = useWeeklySummary();
+  const { data: websiteData } = useWebsiteAnalytics(7); // Use PostHog data directly for website metrics
 
   const handleRefresh = () => {
     mutate();
@@ -189,12 +191,12 @@ export function WeeklySummary() {
             </div>
             <div className="space-y-2">
               <div className="text-3xl font-bold text-green-900">
-                {data?.website_visits_this_week?.toLocaleString() || '0'}
+                {websiteData?.total_visits?.toLocaleString() || data?.website_visits_this_week?.toLocaleString() || '0'}
               </div>
               <div className="flex items-center space-x-2 text-sm">
                 <Globe className="h-4 w-4 text-green-600" />
                 <span className="text-green-700">
-                  {data?.unique_visitors_this_week || 0} unique visitors
+                  {websiteData?.unique_visitors || data?.unique_visitors_this_week || 0} unique visitors
                 </span>
               </div>
               {data?.website_growth_percentage !== null && data?.website_growth_percentage !== undefined && (
@@ -223,7 +225,11 @@ export function WeeklySummary() {
               <span className="font-medium">Most Clicked Link:</span> {data?.top_utm_link_this_week || 'N/A'}
             </div>
             <div>
-              <span className="font-medium">Top Page:</span> {data?.top_website_page_this_week || 'N/A'}
+              <span className="font-medium">Top Page:</span> {
+                websiteData?.top_pages?.[0]?.url?.replace(/^https?:\/\//, '') ||
+                data?.top_website_page_this_week ||
+                'N/A'
+              }
             </div>
           </div>
         </div>
